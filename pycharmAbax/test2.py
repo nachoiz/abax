@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import itertools
 import collections
+import re
 
 
 import nltk
 from nltk.corpus import stopwords
-import re
 import networkx
 
 import warnings
@@ -24,7 +24,22 @@ sns.set_style("whitegrid")
 
 def remove_url(txt):
 	# Replaces URLs found in a text string with nothing
-	return " ".join(re.sub("([^0-9A-Za-z \t[\u00f1]\u00e1])|(\w+:\/\S+)", "", txt).split())
+	# r means that the string is to be treated as a raw string
+	# http matches literal characters
+	# \S+ matches all non-whitespace characters (the end of the url)
+
+	# Remove @username
+	txt = re.sub("@[^\s]+","",txt)
+
+	# Remove #hashtag
+	txt = txt.replace("#", "")
+
+	# Remove punctuation
+	txt = re.sub(r"[^\w\s]", "",txt)
+
+	# Remove http://link
+	return " ".join(re.sub(r"http\S+", "", txt).split())
+	#return " ".join(re.sub("([^0-9A-Za-z \t])|(\w+:\/\S+)", "", txt).split())
 
 consumer_key = 'zUbiKqvr8AS6ns8MZlu88D84N'
 consumer_secret = '5mKwxXG8NKhjtpC3iEJU0hIIopOz374c9XhcI0TqZ5k7XRQ0vb'
@@ -35,14 +50,15 @@ auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
 
-search_term = "#abascal -filter:retweets"
+search_term = "#vox -filter:retweets"
 
 tweets = tw.Cursor(api.search,
 		q=search_term,
 		lang="es",
-		since='2019-11-01').items(10)
+		since='2019-11-01').items(100)
 
 all_tweets = [tweet.text for tweet in tweets]
+#all_tweets = ["Hoy hemos visto a #vox muy mal","otro #ejemplo"]
 all_tweets_no_urls = [remove_url(tweet) for tweet in all_tweets]
 #all_tweets_no_urls = all_tweets
 
@@ -53,7 +69,7 @@ words_in_tweet = [tweet.lower().split() for tweet in all_tweets_no_urls]
 # Spanish prepositions
 prep_es = ['a', 'ante', 'bajo', 'cabe', 'con', 'contra', 'de', 'desde', 'en', 'entre', 'hasta', 'hacia', 'para', 'por', 'segun', 'sin', 'so', 'sobre', 'tras']
 
-conj_es = ['y', 'e', 'o', 'que']
+conj_es = ['y', 'e', 'o', 'que', 'pero', 'sino', 'aunque']
 
 # Determinantes
 # Articulo
@@ -100,7 +116,6 @@ clean_tweets_no_urls = pd.DataFrame(counts_no_urls.most_common(15),
 
 print(clean_tweets_no_urls.head(10))
 
-for elem in flat_list_words:
-	print(elem)
+
 
 
