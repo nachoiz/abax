@@ -22,6 +22,24 @@ sns.set(font_scale=1.5)
 sns.set_style("whitegrid")
 
 
+
+###############################
+###                         ###
+###      Functions          ###
+###                         ###
+###############################
+
+
+def read_token(filename):
+	f = open(filename, "r")
+	token_list = []
+	for x in f:
+		# Extract strings between single quotes
+		sToken = re.findall(r"'(.*?)'", x, re.DOTALL)
+		token_list.append(sToken)
+	return token_list
+
+
 def remove_url(txt):
 	# Replaces URLs found in a text string with nothing
 	# r means that the string is to be treated as a raw string
@@ -39,16 +57,30 @@ def remove_url(txt):
 
 	# Remove http://link
 	return " ".join(re.sub(r"http\S+", "", txt).split())
-	#return " ".join(re.sub("([^0-9A-Za-z \t])|(\w+:\/\S+)", "", txt).split())
 
-consumer_key = 'zUbiKqvr8AS6ns8MZlu88D84N'
-consumer_secret = '5mKwxXG8NKhjtpC3iEJU0hIIopOz374c9XhcI0TqZ5k7XRQ0vb'
-access_token = '1194185301243105280-2hmAEwkSbYzDtHk5SWL8PGKSGvZJHx'
-access_token_secret = 'sAd1lsC3qhaRj4GRMEJl86GoI316RDDDyrQ5ZRPgasXYp'
 
+###############################
+###                         ###
+###      Main program       ###
+###                         ###
+###############################
+
+## Abax Twitter tokens
+abax_token_list = []
+abax_token_list = read_token('/Users/Nacho/Documents/Ignacio/token.txt')
+
+## Tokens
+consumer_key = abax_token_list[1]
+consumer_secret = abax_token_list[2]
+access_token = abax_token_list[3]
+access_token_secret = abax_token_list[4]
+
+## Authentication OAuth
 auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
+
+
 
 search_term = "#vox -filter:retweets"
 
@@ -58,9 +90,7 @@ tweets = tw.Cursor(api.search,
 		since='2019-11-01').items(100)
 
 all_tweets = [tweet.text for tweet in tweets]
-#all_tweets = ["Hoy hemos visto a #vox muy mal","otro #ejemplo"]
 all_tweets_no_urls = [remove_url(tweet) for tweet in all_tweets]
-#all_tweets_no_urls = all_tweets
 
 # All tweets words in one list
 words_in_tweet = [tweet.lower().split() for tweet in all_tweets_no_urls]
