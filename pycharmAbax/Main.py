@@ -1,3 +1,0 @@
-import tweepy
-
-print("--- AbAx ---")
