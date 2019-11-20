@@ -72,7 +72,7 @@ def query_hashtag(hashtag):
     #
 
     ## Abax Twitter tokens
-    tw_token_list = read_token('/Users/Nacho/Documents/Ignacio/token.txt')
+    tw_token_list = read_token('../ignacio/token.txt')
 
     ## Tokens
     consumer_key = tw_token_list[0]
@@ -180,7 +180,8 @@ def main():
     # print(sys.argv[0])  # prints python_script.py
     # print(sys.argv[1])  # prints var1
 
-    tweet_clean_list = query_hashtag(sys.argv[1])
+    #tweet_clean_list = query_hashtag(sys.argv[1])
+    tweet_clean_list = query_hashtag(hashtag)
     print(tweet_clean_list.head(10))
 
 
